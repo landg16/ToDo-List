@@ -24,22 +24,25 @@ class MyDB(private var context: Context) {
         }.start()
     }
 
-    fun addData(/*noteModel: NoteModel, eachNoteList: List<EachNote>*/) {
+    fun addData(noteModel: NoteModel, eachNoteList: List<EachNote>) {
         Thread {
             waiter.lock()
-            val note1 = NoteModel(title = "testing", isPinned = false)
-            val noteID = noteDao?.insertNote(note = note1)
-            val eachNote1 =
-                EachNote(note = "checkbox 1 is active", isChecked = true, note_id = noteID)
-            val eachNote2 =
-                EachNote(note = "checkbox 2 is inactive", isChecked = false, note_id = noteID)
-            eachNoteDao?.insertEachNote(eachNote1)
-            eachNoteDao?.insertEachNote(eachNote2)
+//            val note1 = NoteModel(title = "testing", isPinned = false)
+            val noteID = noteDao?.insertNote(note = noteModel)
+//            val eachNote1 =
+//                EachNote(note = "checkbox 1 is active", isChecked = true, note_id = noteID)
+//            val eachNote2 =
+//                EachNote(note = "checkbox 2 is inactive", isChecked = false, note_id = noteID)
+
+            for (note in eachNoteList) {
+                note.id = noteID
+                eachNoteDao?.insertEachNote(note)
+            }
             waiter.unlock()
         }.start()
     }
 
-    fun getNoteData(): MutableList<Note> {
+    fun getNoteData(isPinned: Boolean): MutableList<Note> {
         val countDownLatch = CountDownLatch(1)
         val noteList: MutableList<Note> = mutableListOf()
         Thread {
@@ -48,21 +51,23 @@ class MyDB(private var context: Context) {
 
             if (noteModels != null) {
                 for (eachNote in noteModels) {
-                    val eachList = eachNote.id?.let { eachNoteDao?.getEachById(note_id = it) }
-                    if (eachList != null) {
-                        val note = Note(
-                            title = eachNote.title,
-                            eachNote = eachList,
-                            isPinned = eachNote.isPinned
-                        )
-                        noteList.add(note)
-                    } else {
-                        val note = Note(
-                            title = eachNote.title,
-                            eachNote = arrayListOf(),
-                            isPinned = eachNote.isPinned
-                        )
-                        noteList.add(note)
+                    if (eachNote.isPinned == isPinned) {
+                        val eachList = eachNote.id?.let { eachNoteDao?.getEachById(note_id = it) }
+                        if (eachList != null) {
+                            val note = Note(
+                                title = eachNote.title,
+                                eachNote = eachList,
+                                isPinned = eachNote.isPinned
+                            )
+                            noteList.add(note)
+                        } else {
+                            val note = Note(
+                                title = eachNote.title,
+                                eachNote = arrayListOf(),
+                                isPinned = eachNote.isPinned
+                            )
+                            noteList.add(note)
+                        }
                     }
                 }
             }

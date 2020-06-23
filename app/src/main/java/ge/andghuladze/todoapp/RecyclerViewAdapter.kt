@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ge.andghuladze.todoapp.models.Note
-import kotlinx.android.synthetic.main.note_card.view.*
+import kotlinx.android.synthetic.main.note_list_item.view.*
 
 class RecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -14,7 +14,7 @@ class RecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return RecycleViewerHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.note_card, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.note_list_item, parent, false)
         )
     }
 
