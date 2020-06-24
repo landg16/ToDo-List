@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF">
@@ -31,6 +32,7 @@
             android:layout_height="40dp">
 
             <ImageView
+                android:id="@+id/back_btn"
                 android:layout_width="40dp"
                 android:layout_height="match_parent"
                 android:layout_alignParentStart="true"
@@ -39,10 +41,11 @@
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="0dp"
                 android:layout_marginBottom="0dp"
-                android:src="?attr/homeAsUpIndicator"
-                android:contentDescription="@string/back_to_list" />
+                android:contentDescription="@string/back_to_list"
+                android:src="?attr/homeAsUpIndicator" />
 
             <ImageView
+                android:id="@+id/pin_btn"
                 android:layout_width="40dp"
                 android:layout_height="match_parent"
                 android:layout_alignParentTop="true"
@@ -51,8 +54,8 @@
                 android:layout_marginTop="0dp"
                 android:layout_marginEnd="15dp"
                 android:layout_marginBottom="0dp"
-                android:src="@drawable/ic_pushpin"
-                android:contentDescription="@string/pin_unpin_note" />
+                android:contentDescription="@string/pin_unpin_note"
+                android:src="@drawable/ic_pushpin" />
 
         </RelativeLayout>
 
@@ -81,7 +84,7 @@
                 android:orientation="vertical">
 
                 <EditText
-                    android:id="@+id/textView6"
+                    android:id="@+id/pinned_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/note_title"
@@ -89,9 +92,41 @@
                     android:autofillHints="" />
 
                 <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/unchecked_list"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/add_note_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clickable="false">
+
+                    <ImageView
+                        android:id="@+id/imageView2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:tint="#BFBFBF"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@android:drawable/ic_input_add"
+                        android:contentDescription="@string/list_item" />
+
+                    <TextView
+                        android:id="@+id/textView2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:text="@string/list_item"
+                        android:textColor="#BFBFBF"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/imageView2"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
             </LinearLayout>
 
             <LinearLayout
@@ -102,16 +137,11 @@
                 android:layout_marginEnd="20dp"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/textView7"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/others" />
-
                 <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/checked_list"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp" />
+                    android:layout_height="wrap_content" />
+
             </LinearLayout>
 
         </LinearLayout>

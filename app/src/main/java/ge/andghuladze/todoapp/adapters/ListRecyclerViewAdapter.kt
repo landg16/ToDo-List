@@ -1,30 +1,34 @@
-package ge.andghuladze.todoapp
+package ge.andghuladze.todoapp.adapters
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import ge.andghuladze.todoapp.R
 import ge.andghuladze.todoapp.models.Note
 import kotlinx.android.synthetic.main.note_list_item.view.*
 
-class RecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+class ListRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var list: List<Note> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return RecycleViewerHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.note_list_item, parent, false)
+            LayoutInflater.from(parent.context).inflate(
+                R.layout.note_list_item,
+                parent,
+                false
+            )
         )
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-
             is RecycleViewerHolder -> {
                 holder.bind(list[position])
             }
-
         }
     }
 
@@ -34,7 +38,6 @@ class RecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     fun addNoteList(listNotes: List<Note>) {
         list = listNotes
-
     }
 
     class RecycleViewerHolder constructor(viewItems: View) : RecyclerView.ViewHolder(viewItems) {
@@ -55,12 +58,14 @@ class RecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             } else {
                 firstCheckBox.visibility = View.GONE
             }
+
             if (listSize > 1) {
                 secondCheckBox.text = note.eachNote[1].note
                 secondCheckBox.isChecked = note.eachNote[1].isChecked
             } else {
                 secondCheckBox.visibility = View.GONE
             }
+
             if (listSize > 2) {
                 plusText.text = "+" + (listSize - 2) + " checked item"
             } else {

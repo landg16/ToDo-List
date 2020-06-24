@@ -35,12 +35,13 @@
         android:layout_marginEnd="5dp"
         android:adjustViewBounds="true"
         android:background="@null"
+        android:contentDescription="@string/delete_note"
         android:scaleType="fitCenter"
-        android:src="@drawable/ic_close"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:tint="#BFBFBF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:contentDescription="@string/delete_note" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

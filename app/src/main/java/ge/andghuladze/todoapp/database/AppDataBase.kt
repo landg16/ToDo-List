@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import ge.andghuladze.todoapp.models.EachNote
 import ge.andghuladze.todoapp.models.NoteModel
 
-@Database(entities = [NoteModel::class, EachNote::class], version = 1)
+@Database(entities = [NoteModel::class, EachNote::class], version = 1, exportSchema = false)
 abstract class AppDataBase : RoomDatabase() {
 
     abstract fun noteDao(): NoteDao

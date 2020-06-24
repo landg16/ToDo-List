@@ -9,4 +9,5 @@
     <string name="delete_note">Delete Note</string>
     <string name="back_to_list">Back to list</string>
     <string name="pin_unpin_note">Pin/Unpin Note</string>
+    <string name="list_item">List Item</string>
 </resources>

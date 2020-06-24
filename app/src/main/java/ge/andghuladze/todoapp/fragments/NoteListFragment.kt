@@ -9,14 +9,14 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import ge.andghuladze.todoapp.R
-import ge.andghuladze.todoapp.RecyclerViewAdapter
+import ge.andghuladze.todoapp.adapters.ListRecyclerViewAdapter
 import ge.andghuladze.todoapp.database.MyDB
 import kotlinx.android.synthetic.main.note_list_fragment.*
 
 class NoteListFragment : Fragment() {
 
-    private lateinit var pinnedAdapter: RecyclerViewAdapter
-    private lateinit var othersAdapter: RecyclerViewAdapter
+    private lateinit var pinnedAdapter: ListRecyclerViewAdapter
+    private lateinit var othersAdapter: ListRecyclerViewAdapter
     private lateinit var dataBase: MyDB
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -29,24 +29,38 @@ class NoteListFragment : Fragment() {
 
         pinned_view.apply {
             layoutManager = StaggeredGridLayoutManager(2, 1)
-            adapter = RecyclerViewAdapter()
-            pinnedAdapter = adapter as RecyclerViewAdapter
+            adapter = ListRecyclerViewAdapter()
+            pinnedAdapter = adapter as ListRecyclerViewAdapter
         }
 
         others_view.apply {
             layoutManager = StaggeredGridLayoutManager(2, 1)
-            adapter = RecyclerViewAdapter()
-            othersAdapter = adapter as RecyclerViewAdapter
+            adapter = ListRecyclerViewAdapter()
+            othersAdapter = adapter as ListRecyclerViewAdapter
         }
 
         dataBase = activity?.applicationContext?.let { MyDB(it) }!!
         dataBase.loadDB()
 
-        pinnedAdapter.addNoteList(listNotes = dataBase.getNoteData(true))
-        othersAdapter.addNoteList(listNotes = dataBase.getNoteData(false))
+        val pinnedList = dataBase.getNoteData(true)
+        val othersList = dataBase.getNoteData(false)
+
+        if (pinnedList.size == 0) {
+            pinned_view.visibility = View.GONE
+            pinned_text.visibility = View.GONE
+            others_text.visibility = View.GONE
+        } else {
+            pinned_view.visibility = View.VISIBLE
+            pinned_text.visibility = View.VISIBLE
+            others_text.visibility = View.VISIBLE
+        }
+
+        pinnedAdapter.addNoteList(listNotes = pinnedList)
+        othersAdapter.addNoteList(listNotes = othersList)
 
         take_a_note.setOnClickListener {
-            Navigation.findNavController(requireView()).navigate(R.id.action_noteListFragment_to_noteFragment)
+            val args = NoteListFragmentDirections.actionNoteListFragmentToNoteFragment(true, null)
+            Navigation.findNavController(requireView()).navigate(args)
         }
     }
 }

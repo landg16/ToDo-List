@@ -35,9 +35,17 @@ class MyDB(private var context: Context) {
 //                EachNote(note = "checkbox 2 is inactive", isChecked = false, note_id = noteID)
 
             for (note in eachNoteList) {
-                note.id = noteID
+                note.note_id = noteID
                 eachNoteDao?.insertEachNote(note)
             }
+            waiter.unlock()
+        }.start()
+    }
+
+    fun deleteEachNote(eachNote: EachNote) {
+        Thread {
+            waiter.lock()
+            eachNoteDao?.deleteNote(eachNote)
             waiter.unlock()
         }.start()
     }

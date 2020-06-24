@@ -13,6 +13,14 @@
         <action
             android:id="@+id/action_noteFragment_to_noteListFragment"
             app:destination="@id/noteListFragment" />
+        <argument
+            android:name="isNew"
+            app:argType="boolean"
+            android:defaultValue="true" />
+        <argument
+            android:name="note"
+            app:argType="ge.andghuladze.todoapp.models.Note"
+            app:nullable="true" />
     </fragment>
     <fragment
         android:id="@+id/noteListFragment"
