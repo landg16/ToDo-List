@@ -24,11 +24,12 @@ class MyDB(private var context: Context) {
         }.start()
     }
 
-    fun addData(noteModel: NoteModel, eachNoteList: List<EachNote>) {
+    fun addNote(noteModel: NoteModel, eachNoteList: List<EachNote>) {
         Thread {
             waiter.lock()
 //            val note1 = NoteModel(title = "testing", isPinned = false)
             val noteID = noteDao?.insertNote(note = noteModel)
+            println("NOTE ID FROM DB: $noteID")
 //            val eachNote1 =
 //                EachNote(note = "checkbox 1 is active", isChecked = true, note_id = noteID)
 //            val eachNote2 =
@@ -36,7 +37,27 @@ class MyDB(private var context: Context) {
 
             for (note in eachNoteList) {
                 note.note_id = noteID
+                println("EACH NOTE TXT: " + note.note)
                 eachNoteDao?.insertEachNote(note)
+            }
+            waiter.unlock()
+        }.start()
+    }
+
+    fun updateNote(noteModel: NoteModel) {
+        Thread {
+            waiter.lock()
+            noteDao?.updateNote(noteModel)
+            waiter.unlock()
+        }.start()
+    }
+
+    fun updateEachNote(note_id: Long, eachNoteList: List<EachNote>) {
+        Thread {
+            waiter.lock()
+            eachNoteDao?.deleteById(note_id)
+            for(eachNote in eachNoteList) {
+                eachNoteDao?.insertEachNote(eachNote)
             }
             waiter.unlock()
         }.start()
@@ -65,14 +86,16 @@ class MyDB(private var context: Context) {
                             val note = Note(
                                 title = eachNote.title,
                                 eachNote = eachList,
-                                isPinned = eachNote.isPinned
+                                isPinned = eachNote.isPinned,
+                                note_id = eachNote.id
                             )
                             noteList.add(note)
                         } else {
                             val note = Note(
                                 title = eachNote.title,
                                 eachNote = arrayListOf(),
-                                isPinned = eachNote.isPinned
+                                isPinned = eachNote.isPinned,
+                                note_id = eachNote.id
                             )
                             noteList.add(note)
                         }

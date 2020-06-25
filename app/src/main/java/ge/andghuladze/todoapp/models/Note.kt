@@ -7,5 +7,6 @@ import kotlinx.android.parcel.Parcelize
 data class Note(
     var title: String,
     var eachNote: MutableList<EachNote>,
-    var isPinned: Boolean = false
+    var isPinned: Boolean = false,
+    var note_id: Long? = null
 ) : Parcelable

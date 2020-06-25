@@ -9,13 +9,16 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import ge.andghuladze.todoapp.R
 import ge.andghuladze.todoapp.adapters.NoteRecyclerViewAdapter
+import ge.andghuladze.todoapp.database.MyDB
 import ge.andghuladze.todoapp.models.EachNote
 import ge.andghuladze.todoapp.models.Note
+import ge.andghuladze.todoapp.models.NoteModel
 import kotlinx.android.synthetic.main.note_fragment.*
 
 class NoteFragment : Fragment() {
 
     private lateinit var uncheckedAdapter: NoteRecyclerViewAdapter
+    private lateinit var myDB: MyDB
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,  savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.note_fragment, container, false)
@@ -23,6 +26,8 @@ class NoteFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
+        myDB = MyDB(requireContext())
 
         unchecked_list.apply {
             layoutManager = LinearLayoutManager(context)
@@ -53,6 +58,25 @@ class NoteFragment : Fragment() {
 
         back_btn.setOnClickListener {
             Navigation.findNavController(requireView()).navigate(R.id.action_noteFragment_to_noteListFragment)
+            if (isNew != null && isNew) {
+                if (note?.title != null) {
+                    val noteModel = NoteModel(null, note.title, note.isPinned)
+                    val noteList = note.eachNote
+                    println("NEW NOTE SHOULD ADD TO DB")
+                    println("NOTE MODEL ID: " + noteModel.id)
+                    println("NOTE LIST LENGTH: "  + noteList.size)
+                    myDB.addNote(noteModel, noteList)
+                }
+            } else {
+                if (note?.title != null) {
+                    val noteModel = NoteModel(note.note_id, note.title, note.isPinned)
+                    val noteList = note.eachNote
+                    myDB.updateNote(noteModel)
+                    if(noteModel.id != null) {
+                        myDB.updateEachNote(noteModel.id, noteList)
+                    }
+                }
+            }
         }
 
         pin_btn.setOnClickListener {

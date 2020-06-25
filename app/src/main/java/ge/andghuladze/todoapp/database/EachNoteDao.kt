@@ -14,6 +14,9 @@ interface EachNoteDao {
     @Delete
     fun deleteNote(note: EachNote)
 
+    @Query("DELETE FROM EachNote WHERE note_id == :note_id")
+    fun deleteById(note_id: Long)
+
     @Query("SELECT * FROM EachNote WHERE note_id == :note_id")
     fun getEachById(note_id: Long): MutableList<EachNote>
 

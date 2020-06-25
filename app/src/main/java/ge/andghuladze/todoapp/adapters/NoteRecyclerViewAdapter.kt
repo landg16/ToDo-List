@@ -3,8 +3,10 @@ package ge.andghuladze.todoapp.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.RecyclerView
 import ge.andghuladze.todoapp.R
+import ge.andghuladze.todoapp.database.MyDB
 import ge.andghuladze.todoapp.models.EachNote
 import ge.andghuladze.todoapp.models.Note
 import kotlinx.android.synthetic.main.each_note_item.view.*
@@ -39,7 +41,6 @@ class NoteRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
     fun setNote(note: Note) {
         this.note = note
         this.noteList = note.eachNote
-        println("SET NOTE CALLED")
     }
 
     class NoteRecycleHolder constructor(viewItems: View) : RecyclerView.ViewHolder(viewItems) {
@@ -61,7 +62,7 @@ class NoteRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
             }
 
             removeNote.setOnClickListener {
-                println("REMOVE CALLED")
+
             }
         }
 
