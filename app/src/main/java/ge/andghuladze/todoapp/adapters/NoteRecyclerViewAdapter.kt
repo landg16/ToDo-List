@@ -3,18 +3,20 @@ package ge.andghuladze.todoapp.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import ge.andghuladze.todoapp.R
-import ge.andghuladze.todoapp.database.MyDB
+import ge.andghuladze.todoapp.listeners.OnCheckboxChanged
+import ge.andghuladze.todoapp.listeners.OnEditTextChanged
+import ge.andghuladze.todoapp.listeners.OnRemoveNoteClick
 import ge.andghuladze.todoapp.models.EachNote
-import ge.andghuladze.todoapp.models.Note
 import kotlinx.android.synthetic.main.each_note_item.view.*
 
 class NoteRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    private lateinit var note: Note
     private var noteList: MutableList<EachNote> = mutableListOf()
+    private lateinit var onEditTextChanged: OnEditTextChanged
+    private lateinit var onRemoveNoteClick: OnRemoveNoteClick
+    private lateinit var onCheckboxChanged: OnCheckboxChanged
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return NoteRecycleHolder(
@@ -34,13 +36,33 @@ class NoteRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
         when (holder) {
             is NoteRecycleHolder -> {
                 holder.bind(noteList[position])
+                holder.itemView.editText_item.addTextChangedListener {
+                    onEditTextChanged.onTextChanged(position, it.toString())
+                }
+                holder.itemView.delete_item.setOnClickListener {
+                    onRemoveNoteClick.onClick(position)
+                }
+                holder.itemView.checkbox_item.setOnCheckedChangeListener { _, isChecked ->
+                    onCheckboxChanged.onCheckboxClick(position, isChecked)
+                }
             }
         }
     }
 
-    fun setNote(note: Note) {
-        this.note = note
-        this.noteList = note.eachNote
+    fun setNoteList(noteList: MutableList<EachNote>) {
+        this.noteList = noteList
+    }
+
+    fun setEditTextListener(onEditTextChanged: OnEditTextChanged) {
+        this.onEditTextChanged = onEditTextChanged
+    }
+
+    fun setRemoveClickListener(onRemoveNoteClick: OnRemoveNoteClick) {
+        this.onRemoveNoteClick = onRemoveNoteClick
+    }
+
+    fun setCheckboxListener(onCheckboxChanged: OnCheckboxChanged) {
+        this.onCheckboxChanged = onCheckboxChanged
     }
 
     class NoteRecycleHolder constructor(viewItems: View) : RecyclerView.ViewHolder(viewItems) {
@@ -59,10 +81,6 @@ class NoteRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
                 } else {
                     removeNote.visibility = View.GONE
                 }
-            }
-
-            removeNote.setOnClickListener {
-
             }
         }
 

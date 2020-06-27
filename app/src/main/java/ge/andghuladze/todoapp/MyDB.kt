@@ -27,14 +27,7 @@ class MyDB(private var context: Context) {
     fun addNote(noteModel: NoteModel, eachNoteList: List<EachNote>) {
         Thread {
             waiter.lock()
-//            val note1 = NoteModel(title = "testing", isPinned = false)
             val noteID = noteDao?.insertNote(note = noteModel)
-            println("NOTE ID FROM DB: $noteID")
-//            val eachNote1 =
-//                EachNote(note = "checkbox 1 is active", isChecked = true, note_id = noteID)
-//            val eachNote2 =
-//                EachNote(note = "checkbox 2 is inactive", isChecked = false, note_id = noteID)
-
             for (note in eachNoteList) {
                 note.note_id = noteID
                 println("EACH NOTE TXT: " + note.note)
