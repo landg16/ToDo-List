@@ -1,5 +1,5 @@
 package ge.andghuladze.todoapp.listeners
 
 interface OnRemoveNoteClick {
-    fun onRemoveClicked(position: Int)
+    fun onRemoveClicked(position: Int, isChecked: Boolean)
 }

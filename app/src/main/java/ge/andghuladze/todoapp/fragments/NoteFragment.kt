@@ -1,7 +1,6 @@
 package ge.andghuladze.todoapp.fragments
 
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,6 +22,11 @@ import kotlinx.android.synthetic.main.note_fragment.*
 class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckboxChanged {
 
     private lateinit var uncheckedAdapter: NoteRecyclerAdapter
+    private lateinit var checkedAdapter: NoteRecyclerAdapter
+
+    private val checkedList = mutableListOf<EachNote>()
+    private val uncheckedList = mutableListOf<EachNote>()
+
     private var note: Note? = null
     private var isNew: Boolean = true
     private lateinit var myDB: MyDB
@@ -41,31 +45,37 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
         myDB = activity?.applicationContext?.let { MyDB(it) }!!
         myDB.loadDB()
 
-        unchecked_list.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = NoteRecyclerAdapter()
-            uncheckedAdapter = adapter as NoteRecyclerAdapter
+        applyAdapters()
+        readNoteFromArgs()
+
+        splitAdapterLists()
+
+        addListeners()
+    }
+
+    private fun splitAdapterLists() {
+        for(each in note!!.eachNote) {
+            if(each.isChecked) {
+                checkedList.add(each)
+            } else {
+                uncheckedList.add(each)
+            }
         }
 
+        setAdapter(checkedAdapter, checkedList)
+        setAdapter(uncheckedAdapter, uncheckedList)
+    }
 
-        isNew = arguments?.getBoolean("isNew")!!
-        note = Note("", mutableListOf())
-        if (!isNew) {
-            note = arguments?.getParcelable("note")
-        } else {
-            note?.eachNote = mutableListOf()
-            note?.eachNote?.add(EachNote(note_id = 0, note = "", isChecked = false))
-        }
+    private fun setAdapter(adapter: NoteRecyclerAdapter, noteList: MutableList<EachNote>) {
+        adapter.setNoteList(noteList)
+        adapter.setEditTextListener(this)
+        adapter.setRemoveClickListener(this)
+        adapter.setCheckboxListener(this)
+    }
 
-        if (note != null) {
-            uncheckedAdapter.setNoteList(note!!.eachNote)
-            uncheckedAdapter.setEditTextListener(this)
-            uncheckedAdapter.setRemoveClickListener(this)
-            uncheckedAdapter.setCheckboxListener(this)
-        }
-
+    private fun addListeners() {
         add_note_item.setOnClickListener {
-            note?.eachNote?.add(EachNote(note_id = 0, note = "", isChecked = false))
+            uncheckedList.add(EachNote(note_id = 0, note = "", isChecked = false))
             uncheckedAdapter.notifyItemInserted(note?.eachNote?.size!! - 1)
         }
 
@@ -91,6 +101,32 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
         }
     }
 
+    private fun readNoteFromArgs() {
+        isNew = arguments?.getBoolean("isNew")!!
+        note = Note("", mutableListOf())
+        if (!isNew) {
+            note = arguments?.getParcelable("note")
+            note_title.setText(note?.title)
+        } else {
+            note?.eachNote = mutableListOf()
+            note?.eachNote?.add(EachNote(note_id = 0, note = "", isChecked = false))
+        }
+    }
+
+    private fun applyAdapters() {
+        unchecked_list.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = NoteRecyclerAdapter(R.layout.each_note_item)
+            uncheckedAdapter = adapter as NoteRecyclerAdapter
+        }
+
+        checked_list.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = NoteRecyclerAdapter(R.layout.each_crossed_note_item)
+            checkedAdapter = adapter as NoteRecyclerAdapter
+        }
+    }
+
     private fun saveChanges(isNew: Boolean?) {
         if (isNew != null && isNew) {
             if (note?.title != null) {
@@ -111,19 +147,47 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
     }
 
     override fun onTextChanged(position: Int, charSeq: String) {
-        if(note != null && position < note?.eachNote?.size!!) {
-            note?.eachNote?.get(position)?.note = charSeq
+        if(position < uncheckedList.size) {
+            uncheckedList[position].note = charSeq
         }
     }
 
-    override fun onRemoveClicked(position: Int) {
-        note?.eachNote?.removeAt(position)
-        uncheckedAdapter.notifyItemRemoved(position)
+    override fun onRemoveClicked(position: Int, isChecked: Boolean) {
+        if(isChecked) {
+            checkedList.removeAt(position)
+            checkedAdapter.notifyItemRemoved(position)
+        } else {
+            uncheckedList.removeAt(position)
+            uncheckedAdapter.notifyItemRemoved(position)
+        }
     }
 
     override fun onCheckboxClick(position: Int, value: Boolean) {
-        println("POSITION: $position, BOOLEAN: $value")
-        note?.eachNote?.get(position)?.isChecked = value
-        uncheckedAdapter.notifyItemChanged(position)
+        println("POSITION: $position, VALUE: $value")
+        if (value) {
+            uncheckedList[position].isChecked = value
+            checkedList.add(uncheckedList[position])
+            uncheckedList.removeAt(position)
+
+            unchecked_list.post {
+                uncheckedAdapter.notifyItemRemoved(position)
+            }
+            checked_list.post {
+                checkedAdapter.notifyItemInserted(checkedList.size - 1)
+            }
+        } else {
+            checkedList[position].isChecked = value
+            uncheckedList.add(checkedList[position])
+            checkedList.removeAt(position)
+
+            unchecked_list.post {
+                uncheckedAdapter.notifyItemInserted(uncheckedList.size - 1)
+            }
+            checked_list.post {
+                checkedAdapter.notifyItemRemoved(position)
+            }
+        }
+
+
     }
 }
