@@ -3,7 +3,7 @@ package ge.andghuladze.todoapp.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.RecyclerView
 import ge.andghuladze.todoapp.R
 import ge.andghuladze.todoapp.listeners.OnCheckboxChanged
@@ -12,14 +12,14 @@ import ge.andghuladze.todoapp.listeners.OnRemoveNoteClick
 import ge.andghuladze.todoapp.models.EachNote
 import kotlinx.android.synthetic.main.each_note_item.view.*
 
-class NoteRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class UncheckedNoteRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var noteList: MutableList<EachNote> = mutableListOf()
     private lateinit var onEditTextChanged: OnEditTextChanged
     private lateinit var onRemoveNoteClick: OnRemoveNoteClick
     private lateinit var onCheckboxChanged: OnCheckboxChanged
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return NoteRecycleHolder(
+        return UncheckedRecyclerViewHolder(
             LayoutInflater.from(parent.context).inflate(
                 R.layout.each_note_item,
                 parent,
@@ -33,15 +33,18 @@ class NoteRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        println("ON BIND VIEW HOLDER FOR: $position")
         when (holder) {
-            is NoteRecycleHolder -> {
+            is UncheckedRecyclerViewHolder -> {
                 holder.bind(noteList[position])
-                holder.itemView.editText_item.addTextChangedListener {
+                holder.itemView.editText_item.doAfterTextChanged {
                     onEditTextChanged.onTextChanged(position, it.toString())
                 }
+
                 holder.itemView.delete_item.setOnClickListener {
-                    onRemoveNoteClick.onClick(position)
+                    onRemoveNoteClick.onRemoveClicked(position)
                 }
+
                 holder.itemView.checkbox_item.setOnCheckedChangeListener { _, isChecked ->
                     onCheckboxChanged.onCheckboxClick(position, isChecked)
                 }
@@ -65,7 +68,7 @@ class NoteRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
         this.onCheckboxChanged = onCheckboxChanged
     }
 
-    class NoteRecycleHolder constructor(viewItems: View) : RecyclerView.ViewHolder(viewItems) {
+    class UncheckedRecyclerViewHolder constructor(viewItems: View) : RecyclerView.ViewHolder(viewItems) {
         private var checkbox = viewItems.checkbox_item
         private var noteText = viewItems.editText_item
         private var removeNote = viewItems.delete_item

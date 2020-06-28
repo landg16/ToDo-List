@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import ge.andghuladze.todoapp.R
-import ge.andghuladze.todoapp.adapters.NoteRecyclerViewAdapter
+import ge.andghuladze.todoapp.adapters.UncheckedNoteRecyclerAdapter
 import ge.andghuladze.todoapp.database.MyDB
 import ge.andghuladze.todoapp.listeners.OnCheckboxChanged
 import ge.andghuladze.todoapp.listeners.OnEditTextChanged
@@ -21,7 +21,8 @@ import kotlinx.android.synthetic.main.note_fragment.*
 
 class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckboxChanged {
 
-    private lateinit var uncheckedAdapter: NoteRecyclerViewAdapter
+    private lateinit var uncheckedAdapter: UncheckedNoteRecyclerAdapter
+    private lateinit var checkedAdapter: CheckedNoteRecyclerAdapter
     private var note: Note? = null
     private lateinit var myDB: MyDB
 
@@ -41,9 +42,10 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
 
         unchecked_list.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = NoteRecyclerViewAdapter()
-            uncheckedAdapter = adapter as NoteRecyclerViewAdapter
+            adapter = UncheckedNoteRecyclerAdapter()
+            uncheckedAdapter = adapter as UncheckedNoteRecyclerAdapter
         }
+
 
         val isNew = arguments?.getBoolean("isNew")
         note = Note("", mutableListOf())
@@ -63,10 +65,7 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
 
         add_note_item.setOnClickListener {
             note?.eachNote?.add(EachNote(note_id = 0, note = "", isChecked = false))
-            if (note != null) {
-                uncheckedAdapter.setNoteList(note!!.eachNote)
-            }
-            uncheckedAdapter.notifyDataSetChanged()
+            uncheckedAdapter.notifyItemInserted(note?.eachNote?.size!! - 1)
         }
 
         note_title.addTextChangedListener {
@@ -107,19 +106,19 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
     }
 
     override fun onTextChanged(position: Int, charSeq: String) {
-        println("POSITION: $position, CHARSEQ: $charSeq")
         if(note != null && position < note?.eachNote?.size!!) {
             note?.eachNote?.get(position)?.note = charSeq
         }
     }
 
-    override fun onClick(position: Int) {
+    override fun onRemoveClicked(position: Int) {
         note?.eachNote?.removeAt(position)
-        uncheckedAdapter.notifyDataSetChanged()
+        uncheckedAdapter.notifyItemRemoved(position)
     }
 
     override fun onCheckboxClick(position: Int, value: Boolean) {
         println("POSITION: $position, BOOLEAN: $value")
         note?.eachNote?.get(position)?.isChecked = value
+        uncheckedAdapter.notifyItemChanged(position)
     }
 }
