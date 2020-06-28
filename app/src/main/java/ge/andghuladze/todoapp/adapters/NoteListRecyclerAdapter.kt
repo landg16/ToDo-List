@@ -4,13 +4,15 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import ge.andghuladze.todoapp.R
+import ge.andghuladze.todoapp.fragments.NoteListFragmentDirections
 import ge.andghuladze.todoapp.models.Note
 import kotlinx.android.synthetic.main.note_list_item.view.*
 
 
-class ListRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class NoteListRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var list: List<Note> = ArrayList()
 
@@ -28,6 +30,10 @@ class ListRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
         when (holder) {
             is RecycleViewerHolder -> {
                 holder.bind(list[position])
+                holder.itemView.setOnClickListener{
+                    val args = NoteListFragmentDirections.actionNoteListFragmentToNoteFragment(false, list[position])
+                    Navigation.findNavController(it).navigate(args)
+                }
             }
         }
     }

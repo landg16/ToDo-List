@@ -12,7 +12,7 @@ import ge.andghuladze.todoapp.listeners.OnRemoveNoteClick
 import ge.andghuladze.todoapp.models.EachNote
 import kotlinx.android.synthetic.main.each_note_item.view.*
 
-class UncheckedNoteRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class NoteRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var noteList: MutableList<EachNote> = mutableListOf()
     private lateinit var onEditTextChanged: OnEditTextChanged
     private lateinit var onRemoveNoteClick: OnRemoveNoteClick

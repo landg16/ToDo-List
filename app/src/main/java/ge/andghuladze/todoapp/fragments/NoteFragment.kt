@@ -1,6 +1,7 @@
 package ge.andghuladze.todoapp.fragments
 
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import ge.andghuladze.todoapp.R
-import ge.andghuladze.todoapp.adapters.UncheckedNoteRecyclerAdapter
+import ge.andghuladze.todoapp.adapters.NoteRecyclerAdapter
 import ge.andghuladze.todoapp.database.MyDB
 import ge.andghuladze.todoapp.listeners.OnCheckboxChanged
 import ge.andghuladze.todoapp.listeners.OnEditTextChanged
@@ -21,9 +22,9 @@ import kotlinx.android.synthetic.main.note_fragment.*
 
 class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckboxChanged {
 
-    private lateinit var uncheckedAdapter: UncheckedNoteRecyclerAdapter
-    private lateinit var checkedAdapter: CheckedNoteRecyclerAdapter
+    private lateinit var uncheckedAdapter: NoteRecyclerAdapter
     private var note: Note? = null
+    private var isNew: Boolean = true
     private lateinit var myDB: MyDB
 
     override fun onCreateView(
@@ -42,14 +43,14 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
 
         unchecked_list.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = UncheckedNoteRecyclerAdapter()
-            uncheckedAdapter = adapter as UncheckedNoteRecyclerAdapter
+            adapter = NoteRecyclerAdapter()
+            uncheckedAdapter = adapter as NoteRecyclerAdapter
         }
 
 
-        val isNew = arguments?.getBoolean("isNew")
+        isNew = arguments?.getBoolean("isNew")!!
         note = Note("", mutableListOf())
-        if (isNew != null && !isNew) {
+        if (!isNew) {
             note = arguments?.getParcelable("note")
         } else {
             note?.eachNote = mutableListOf()
@@ -75,22 +76,7 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
         back_btn.setOnClickListener {
             Navigation.findNavController(requireView())
                 .navigate(R.id.action_noteFragment_to_noteListFragment)
-            if (isNew != null && isNew) {
-                if (note?.title != null) {
-                    val noteModel = NoteModel(null, note!!.title, note!!.isPinned)
-                    val noteList = note!!.eachNote
-                    myDB.addNote(noteModel, noteList)
-                }
-            } else {
-                if (note?.title != null) {
-                    val noteModel = NoteModel(note!!.note_id, note!!.title, note!!.isPinned)
-                    val noteList = note!!.eachNote
-                    myDB.updateNote(noteModel)
-                    if (noteModel.id != null) {
-                        myDB.updateEachNote(noteModel.id, noteList)
-                    }
-                }
-            }
+            saveChanges(isNew)
         }
 
         pin_btn.setOnClickListener {
@@ -100,6 +86,25 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
                     pin_btn.setImageResource(R.drawable.ic_pushpin_selected)
                 } else {
                     pin_btn.setImageResource(R.drawable.ic_pushpin)
+                }
+            }
+        }
+    }
+
+    private fun saveChanges(isNew: Boolean?) {
+        if (isNew != null && isNew) {
+            if (note?.title != null) {
+                val noteModel = NoteModel(null, note!!.title, note!!.isPinned)
+                val noteList = note!!.eachNote
+                myDB.addNote(noteModel, noteList)
+            }
+        } else {
+            if (note?.title != null) {
+                val noteModel = NoteModel(note!!.note_id, note!!.title, note!!.isPinned)
+                val noteList = note!!.eachNote
+                myDB.updateNote(noteModel)
+                if (noteModel.id != null) {
+                    myDB.updateEachNote(noteModel.id, noteList)
                 }
             }
         }
