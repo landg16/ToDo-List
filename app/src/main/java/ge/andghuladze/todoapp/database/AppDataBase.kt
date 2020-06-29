@@ -22,7 +22,7 @@ abstract class AppDataBase : RoomDatabase() {
                     INSTANCE = Room.databaseBuilder(
                         context.applicationContext,
                         AppDataBase::class.java,
-                        "notes.db"
+                        "notes_.db"
                     ).build()
                 }
             }

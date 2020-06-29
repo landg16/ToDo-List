@@ -76,7 +76,7 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
     private fun addListeners() {
         add_note_item.setOnClickListener {
             uncheckedList.add(EachNote(note_id = 0, note = "", isChecked = false))
-            uncheckedAdapter.notifyItemInserted(note?.eachNote?.size!! - 1)
+            uncheckedAdapter.notifyItemInserted(uncheckedList.size - 1)
         }
 
         note_title.addTextChangedListener {
@@ -122,12 +122,16 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
 
         checked_list.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = NoteRecyclerAdapter(R.layout.each_crossed_note_item)
+            adapter = NoteRecyclerAdapter(R.layout.each_note_item)
             checkedAdapter = adapter as NoteRecyclerAdapter
         }
     }
 
     private fun saveChanges(isNew: Boolean?) {
+        note!!.eachNote.clear()
+        note!!.eachNote.addAll(uncheckedList)
+        note!!.eachNote.addAll(checkedList)
+
         if (isNew != null && isNew) {
             if (note?.title != null) {
                 val noteModel = NoteModel(null, note!!.title, note!!.isPinned)
@@ -153,7 +157,7 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
     }
 
     override fun onRemoveClicked(position: Int, isChecked: Boolean) {
-        if(isChecked) {
+        if (isChecked) {
             checkedList.removeAt(position)
             checkedAdapter.notifyItemRemoved(position)
         } else {
@@ -165,26 +169,32 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
     override fun onCheckboxClick(position: Int, value: Boolean) {
         println("POSITION: $position, VALUE: $value")
         if (value) {
-            uncheckedList[position].isChecked = value
-            checkedList.add(uncheckedList[position])
-            uncheckedList.removeAt(position)
+            println("UNCHECKED LIST: $uncheckedList")
+            if(position < uncheckedList.size) {
+                uncheckedList[position].isChecked = true
+                checkedList.add(uncheckedList[position])
+                uncheckedList.removeAt(position)
 
-            unchecked_list.post {
-                uncheckedAdapter.notifyItemRemoved(position)
-            }
-            checked_list.post {
-                checkedAdapter.notifyItemInserted(checkedList.size - 1)
+                unchecked_list.post {
+                    uncheckedAdapter.notifyDataSetChanged()
+                }
+                checked_list.post {
+                    checkedAdapter.notifyDataSetChanged()
+                }
             }
         } else {
-            checkedList[position].isChecked = value
-            uncheckedList.add(checkedList[position])
-            checkedList.removeAt(position)
+            println("CHECKED LIST: $checkedList")
+            if(position < checkedList.size) {
+                checkedList[position].isChecked = false
+                uncheckedList.add(checkedList[position])
+                checkedList.removeAt(position)
 
-            unchecked_list.post {
-                uncheckedAdapter.notifyItemInserted(uncheckedList.size - 1)
-            }
-            checked_list.post {
-                checkedAdapter.notifyItemRemoved(position)
+                unchecked_list.post {
+                    uncheckedAdapter.notifyDataSetChanged()
+                }
+                checked_list.post {
+                    checkedAdapter.notifyDataSetChanged()
+                }
             }
         }
 

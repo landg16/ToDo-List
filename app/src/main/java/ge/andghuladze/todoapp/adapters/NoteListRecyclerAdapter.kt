@@ -1,6 +1,5 @@
 package ge.andghuladze.todoapp.adapters
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -53,7 +52,6 @@ class NoteListRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
         private val secondCheckBox = viewItems.second_check_box
         private val plusText = viewItems.plus_text
 
-        @SuppressLint("SetTextI18n")
         fun bind(note: Note) {
             title.text = note.title
             val listSize = note.eachNote.size
@@ -73,7 +71,8 @@ class NoteListRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
             }
 
             if (listSize > 2) {
-                plusText.text = "+" + (listSize - 2) + " checked item"
+                val str = "+" + (listSize - 2) + " checked item"
+                plusText.text = str
             } else {
                 plusText.visibility = View.GONE
             }

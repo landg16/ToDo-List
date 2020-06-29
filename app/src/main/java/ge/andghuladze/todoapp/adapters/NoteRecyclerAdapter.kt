@@ -9,7 +9,6 @@ import ge.andghuladze.todoapp.listeners.OnCheckboxChanged
 import ge.andghuladze.todoapp.listeners.OnEditTextChanged
 import ge.andghuladze.todoapp.listeners.OnRemoveNoteClick
 import ge.andghuladze.todoapp.models.EachNote
-import kotlinx.android.synthetic.main.each_crossed_note_item.view.*
 import kotlinx.android.synthetic.main.each_note_item.view.*
 import kotlinx.android.synthetic.main.each_note_item.view.checkbox_item
 import kotlinx.android.synthetic.main.each_note_item.view.delete_item
@@ -40,10 +39,8 @@ class NoteRecyclerAdapter(private val layoutId: Int) :
             is UncheckedRecyclerViewHolder -> {
                 holder.bind(noteList[position])
 
-                if (!noteList[position].isChecked) {
-                    holder.itemView.editText_item.doAfterTextChanged {
-                        onEditTextChanged.onTextChanged(position, it.toString())
-                    }
+                holder.itemView.editText_item.doAfterTextChanged {
+                    onEditTextChanged.onTextChanged(position, it.toString())
                 }
 
                 holder.itemView.delete_item.setOnClickListener {
@@ -77,17 +74,16 @@ class NoteRecyclerAdapter(private val layoutId: Int) :
         RecyclerView.ViewHolder(viewItems) {
         private var checkbox = viewItems.checkbox_item
         private var noteText = viewItems.editText_item
-        private var noteTextView = viewItems.textView_item
         private var removeNote = viewItems.delete_item
 
         fun bind(note: EachNote) {
             checkbox.isChecked = note.isChecked
             removeNote.visibility = View.GONE
+            noteText.setText(note.note)
 
             if (note.isChecked) {
-                noteTextView.text = note.note
+//                checkbox.background.setTint(0xFF888888.toInt())
             } else {
-                noteText.setText(note.note)
                 noteText.setOnFocusChangeListener { _, hasFocus ->
                     if (hasFocus) {
                         removeNote.visibility = View.VISIBLE
