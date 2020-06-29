@@ -67,7 +67,7 @@ class MyDB(private var context: Context) {
     fun getNoteData(isPinned: Boolean): MutableList<Note> {
         val countDownLatch = CountDownLatch(1)
         val noteList: MutableList<Note> = mutableListOf()
-        Thread {
+        val thread = Thread {
             waiter.lock()
             val noteModels: List<NoteModel>? = noteDao?.getNotes()
 
@@ -97,8 +97,13 @@ class MyDB(private var context: Context) {
             }
             countDownLatch.countDown()
             waiter.unlock()
-        }.start()
+        }
+        thread.start()
         countDownLatch.await()
+        if(noteList.size == 0) {
+            countDownLatch.count
+            thread.start()
+        }
         return noteList
     }
 }

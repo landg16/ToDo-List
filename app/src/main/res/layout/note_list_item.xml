@@ -32,19 +32,11 @@
             android:layout_height="wrap_content"
             android:textColor="#000000" />
 
-        <CheckBox
-            android:id="@+id/first_check_box"
+        <LinearLayout
+            android:id="@+id/checkbox_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textColor="#757575" />
-
-        <CheckBox
-            android:id="@+id/second_check_box"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="#757575" />
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
 
         <TextView
             android:id="@+id/plus_text"

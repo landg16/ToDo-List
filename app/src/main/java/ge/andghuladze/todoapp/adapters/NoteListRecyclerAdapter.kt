@@ -1,21 +1,26 @@
 package ge.andghuladze.todoapp.adapters
 
+import android.content.Context
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import ge.andghuladze.todoapp.R
 import ge.andghuladze.todoapp.fragments.NoteListFragmentDirections
+import ge.andghuladze.todoapp.models.EachNote
 import ge.andghuladze.todoapp.models.Note
 import kotlinx.android.synthetic.main.note_list_item.view.*
 
 
 class NoteListRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
+    private lateinit var context: Context
     private var list: List<Note> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        context = parent.context
         return RecycleViewerHolder(
             LayoutInflater.from(parent.context).inflate(
                 R.layout.note_list_item,
@@ -28,10 +33,28 @@ class NoteListRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is RecycleViewerHolder -> {
-                holder.bind(list[position])
-                holder.itemView.setOnClickListener{
-                    val args = NoteListFragmentDirections.actionNoteListFragmentToNoteFragment(false, list[position])
-                    Navigation.findNavController(it).navigate(args)
+                holder.bind(list[position], context)
+                holder.itemView.setOnTouchListener { view, motionEvent ->
+                    when (motionEvent.actionMasked) {
+                        MotionEvent.ACTION_DOWN -> {
+                            val args =
+                                NoteListFragmentDirections.actionNoteListFragmentToNoteFragment(
+                                    false,
+                                    list[position]
+                                )
+                            Navigation.findNavController(view).navigate(args)
+                            true
+                        }
+
+                        MotionEvent.ACTION_UP -> {
+                            view.performClick()
+                            true
+                        }
+
+                        else -> {
+                            false
+                        }
+                    }
                 }
             }
         }
@@ -48,30 +71,32 @@ class NoteListRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
     class RecycleViewerHolder constructor(viewItems: View) : RecyclerView.ViewHolder(viewItems) {
 
         private val title = viewItems.title
-        private val firstCheckBox = viewItems.first_check_box
-        private val secondCheckBox = viewItems.second_check_box
+        private val checkboxList = viewItems.checkbox_list
         private val plusText = viewItems.plus_text
 
-        fun bind(note: Note) {
+        fun bind(note: Note, context: Context) {
             title.text = note.title
-            val listSize = note.eachNote.size
 
-            if (listSize > 0) {
-                firstCheckBox.text = note.eachNote[0].note
-                firstCheckBox.isChecked = note.eachNote[0].isChecked
-            } else {
-                firstCheckBox.visibility = View.GONE
+            val checkedList = mutableListOf<EachNote>()
+
+            for (nt in note.eachNote) {
+                if (nt.isChecked) {
+                    checkedList.add(nt)
+                } else {
+                    val checkbox = CheckBox(context)
+
+                    checkbox.text = nt.note
+                    checkbox.isChecked = false
+                    checkbox.isEnabled = false
+                    checkbox.isFocusable = false
+                    checkbox.isClickable = false
+
+                    checkboxList.addView(checkbox)
+                }
             }
 
-            if (listSize > 1) {
-                secondCheckBox.text = note.eachNote[1].note
-                secondCheckBox.isChecked = note.eachNote[1].isChecked
-            } else {
-                secondCheckBox.visibility = View.GONE
-            }
-
-            if (listSize > 2) {
-                val str = "+" + (listSize - 2) + " checked item"
+            if (checkedList.size > 0) {
+                val str = "+" + checkedList.size + " checked item"
                 plusText.text = str
             } else {
                 plusText.visibility = View.GONE

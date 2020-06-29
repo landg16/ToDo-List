@@ -1,12 +1,12 @@
 package ge.andghuladze.todoapp.fragments
 
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import ge.andghuladze.todoapp.R
 import ge.andghuladze.todoapp.adapters.NoteRecyclerAdapter
@@ -83,10 +83,19 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
             note?.title = note_title.text.toString()
         }
 
+        view?.setOnKeyListener { _: View, i: Int, keyEvent: KeyEvent ->
+            if (keyEvent.action == KeyEvent.ACTION_UP && i == KeyEvent.KEYCODE_BACK) {
+                saveChanges(isNew)
+                true
+            } else {
+                false
+            }
+        }
+
         back_btn.setOnClickListener {
-            Navigation.findNavController(requireView())
-                .navigate(R.id.action_noteFragment_to_noteListFragment)
-            saveChanges(isNew)
+//            Navigation.findNavController(requireView())
+//                .navigate(R.id.action_noteFragment_to_noteListFragment)
+            activity?.onBackPressed()
         }
 
         pin_btn.setOnClickListener {

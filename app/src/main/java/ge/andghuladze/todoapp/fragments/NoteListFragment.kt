@@ -1,6 +1,5 @@
 package ge.andghuladze.todoapp.fragments
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.TypedValue
@@ -25,7 +24,6 @@ class NoteListFragment : Fragment() {
         return inflater.inflate(R.layout.note_list_fragment, container, false)
     }
 
-    @SuppressLint("RtlHardcoded")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
@@ -53,9 +51,11 @@ class NoteListFragment : Fragment() {
     }
 
     private fun loadDatabaseIntoView() {
-
         val pinnedList = dataBase.getNoteData(true)
         val othersList = dataBase.getNoteData(false)
+
+        println("PINNED LIST: $pinnedList")
+        println("OTHERS LIST: $othersList")
 
         val margins = pinned_container.layoutParams as ViewGroup.MarginLayoutParams
 
