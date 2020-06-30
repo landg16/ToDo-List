@@ -14,7 +14,7 @@ abstract class AppDataBase : RoomDatabase() {
     abstract fun eachNoteDao(): EachNoteDao
 
     companion object {
-        var INSTANCE: AppDataBase? = null
+        private var INSTANCE: AppDataBase? = null
 
         fun getAppDataBase(context: Context): AppDataBase? {
             if (INSTANCE == null) {
@@ -22,7 +22,7 @@ abstract class AppDataBase : RoomDatabase() {
                     INSTANCE = Room.databaseBuilder(
                         context.applicationContext,
                         AppDataBase::class.java,
-                        "notes_.db"
+                        "notes.db"
                     ).build()
                 }
             }

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true"
     android:focusable="true">
 
@@ -36,7 +37,7 @@
             android:orientation="vertical">
 
             <EditText
-                android:id="@+id/editText3"
+                android:id="@+id/search_box"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"

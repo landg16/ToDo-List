@@ -30,7 +30,6 @@ class MyDB(private var context: Context) {
             val noteID = noteDao?.insertNote(note = noteModel)
             for (note in eachNoteList) {
                 note.note_id = noteID
-                println("EACH NOTE TXT: " + note.note)
                 eachNoteDao?.insertEachNote(note)
             }
             waiter.unlock()
@@ -50,16 +49,10 @@ class MyDB(private var context: Context) {
             waiter.lock()
             eachNoteDao?.deleteById(note_id)
             for(eachNote in eachNoteList) {
+                println(eachNote.note)
+                eachNote.note_id = note_id
                 eachNoteDao?.insertEachNote(eachNote)
             }
-            waiter.unlock()
-        }.start()
-    }
-
-    fun deleteEachNote(eachNote: EachNote) {
-        Thread {
-            waiter.lock()
-            eachNoteDao?.deleteNote(eachNote)
             waiter.unlock()
         }.start()
     }
@@ -67,43 +60,66 @@ class MyDB(private var context: Context) {
     fun getNoteData(isPinned: Boolean): MutableList<Note> {
         val countDownLatch = CountDownLatch(1)
         val noteList: MutableList<Note> = mutableListOf()
-        val thread = Thread {
+        Thread {
             waiter.lock()
             val noteModels: List<NoteModel>? = noteDao?.getNotes()
 
             if (noteModels != null) {
                 for (eachNote in noteModels) {
                     if (eachNote.isPinned == isPinned) {
-                        val eachList = eachNote.id?.let { eachNoteDao?.getEachById(note_id = it) }
-                        if (eachList != null) {
-                            val note = Note(
-                                title = eachNote.title,
-                                eachNote = eachList,
-                                isPinned = eachNote.isPinned,
-                                note_id = eachNote.id
-                            )
-                            noteList.add(note)
-                        } else {
-                            val note = Note(
-                                title = eachNote.title,
-                                eachNote = arrayListOf(),
-                                isPinned = eachNote.isPinned,
-                                note_id = eachNote.id
-                            )
-                            noteList.add(note)
+                        var eachList = eachNote.id?.let { eachNoteDao?.getEachById(note_id = it) }
+
+                        if (eachList == null) {
+                            eachList = arrayListOf()
                         }
+
+                        val note = Note(
+                            title = eachNote.title,
+                            eachNote = eachList,
+                            isPinned = eachNote.isPinned,
+                            note_id = eachNote.id
+                        )
+                        noteList.add(note)
                     }
                 }
             }
             countDownLatch.countDown()
             waiter.unlock()
-        }
-        thread.start()
+        }.start()
         countDownLatch.await()
-        if(noteList.size == 0) {
-            countDownLatch.count
-            thread.start()
-        }
+        return noteList
+    }
+
+    fun getSearchData(isPinned: Boolean, str: String): MutableList<Note> {
+        println("SEARCH STARTED: $str")
+        val countDownLatch = CountDownLatch(1)
+        val noteList: MutableList<Note> = mutableListOf()
+        Thread {
+            waiter.lock()
+            val noteModels: List<NoteModel>? = noteDao?.searchNote(str, isPinned)
+            if (noteModels != null) {
+                println("MODELS LENGTH: " + noteModels.size)
+                for (eachNote in noteModels) {
+                    println("NOTE: " + eachNote.id)
+                    var eachList = eachNote.id?.let { eachNoteDao?.getEachById(note_id = it) }
+                    println("EACH LIST LENGTH: " + eachList?.size)
+                    if (eachList == null) {
+                        eachList = arrayListOf()
+                    }
+
+                    val note = Note(
+                        title = eachNote.title,
+                        eachNote = eachList,
+                        isPinned = eachNote.isPinned,
+                        note_id = eachNote.id
+                    )
+                    noteList.add(note)
+                }
+            }
+            countDownLatch.countDown()
+            waiter.unlock()
+        }.start()
+        countDownLatch.await()
         return noteList
     }
 }

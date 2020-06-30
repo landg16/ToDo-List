@@ -1,5 +1,6 @@
 package ge.andghuladze.todoapp.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -53,14 +54,28 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
         addListeners()
     }
 
+    @SuppressLint("SetTextI18n")
+    private fun horizontalLineUpdate() {
+        if (checkedList.isNotEmpty()) {
+            horizontal_line.visibility = View.VISIBLE
+            drop_down_image.visibility = View.VISIBLE
+            checked_item.text = "" + checkedList.size + checked_item.text.toString()
+        } else {
+            horizontal_line.visibility = View.GONE
+            drop_down_image.visibility = View.GONE
+        }
+    }
+
     private fun splitAdapterLists() {
-        for(each in note!!.eachNote) {
-            if(each.isChecked) {
+        for (each in note!!.eachNote) {
+            if (each.isChecked) {
                 checkedList.add(each)
             } else {
                 uncheckedList.add(each)
             }
         }
+
+        horizontalLineUpdate()
 
         setAdapter(checkedAdapter, checkedList)
         setAdapter(uncheckedAdapter, uncheckedList)
@@ -93,8 +108,7 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
         }
 
         back_btn.setOnClickListener {
-//            Navigation.findNavController(requireView())
-//                .navigate(R.id.action_noteFragment_to_noteListFragment)
+            saveChanges(isNew)
             activity?.onBackPressed()
         }
 
@@ -140,6 +154,20 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
         note!!.eachNote.clear()
         note!!.eachNote.addAll(uncheckedList)
         note!!.eachNote.addAll(checkedList)
+
+        if (note!!.title == "" || note!!.title.isEmpty()) {
+            var isEmpty = true
+            for (note in note!!.eachNote) {
+                if (note.note.isNotEmpty() || note.isChecked) {
+                    isEmpty = false
+                    break
+                }
+            }
+            if (isEmpty) {
+                println("NOTE WAS EMPTY :(")
+                return
+            }
+        }
 
         if (isNew != null && isNew) {
             if (note?.title != null) {
@@ -206,7 +234,6 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
                 }
             }
         }
-
-
+        horizontalLineUpdate()
     }
 }

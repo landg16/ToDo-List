@@ -75,9 +75,16 @@ class NoteListRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
         private val plusText = viewItems.plus_text
 
         fun bind(note: Note, context: Context) {
-            title.text = note.title
+
+            if (note.title.isEmpty()) {
+                title.visibility = View.GONE
+            } else {
+                title.text = note.title
+            }
 
             val checkedList = mutableListOf<EachNote>()
+
+            checkboxList.removeAllViewsInLayout()
 
             for (nt in note.eachNote) {
                 if (nt.isChecked) {
