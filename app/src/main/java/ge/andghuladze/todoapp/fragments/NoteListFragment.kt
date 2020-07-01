@@ -10,9 +10,10 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import ge.andghuladze.todoapp.MainActivity
+import ge.andghuladze.todoapp.MyDB
 import ge.andghuladze.todoapp.R
 import ge.andghuladze.todoapp.adapters.NoteListRecyclerAdapter
-import ge.andghuladze.todoapp.database.MyDB
 import ge.andghuladze.todoapp.models.Note
 import kotlinx.android.synthetic.main.note_list_fragment.*
 
@@ -42,8 +43,12 @@ class NoteListFragment : Fragment() {
             othersAdapter = adapter as NoteListRecyclerAdapter
         }
 
-        dataBase = activity?.applicationContext?.let { MyDB(it) }!!
-        dataBase.loadDB()
+//        dataBase = activity?.applicationContext?.let { MyDB(it) }!!
+//        dataBase.loadDB()
+        val mainActivity = activity as MainActivity?
+        if (mainActivity != null) {
+            dataBase = mainActivity.getDB()
+        }
 
         loadDatabaseIntoView()
 

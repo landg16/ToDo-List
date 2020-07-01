@@ -1,6 +1,9 @@
-package ge.andghuladze.todoapp.database
+package ge.andghuladze.todoapp
 
 import android.content.Context
+import ge.andghuladze.todoapp.database.AppDataBase
+import ge.andghuladze.todoapp.database.EachNoteDao
+import ge.andghuladze.todoapp.database.NoteDao
 import ge.andghuladze.todoapp.models.EachNote
 import ge.andghuladze.todoapp.models.Note
 import ge.andghuladze.todoapp.models.NoteModel

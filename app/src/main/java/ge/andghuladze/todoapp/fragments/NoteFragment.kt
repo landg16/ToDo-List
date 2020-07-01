@@ -1,17 +1,17 @@
 package ge.andghuladze.todoapp.fragments
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import ge.andghuladze.todoapp.MainActivity
+import ge.andghuladze.todoapp.MyDB
 import ge.andghuladze.todoapp.R
 import ge.andghuladze.todoapp.adapters.NoteRecyclerAdapter
-import ge.andghuladze.todoapp.database.MyDB
 import ge.andghuladze.todoapp.listeners.OnCheckboxChanged
 import ge.andghuladze.todoapp.listeners.OnEditTextChanged
 import ge.andghuladze.todoapp.listeners.OnRemoveNoteClick
@@ -19,6 +19,7 @@ import ge.andghuladze.todoapp.models.EachNote
 import ge.andghuladze.todoapp.models.Note
 import ge.andghuladze.todoapp.models.NoteModel
 import kotlinx.android.synthetic.main.note_fragment.*
+
 
 class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckboxChanged {
 
@@ -43,23 +44,22 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        myDB = activity?.applicationContext?.let { MyDB(it) }!!
-        myDB.loadDB()
+        val mainActivity = activity as MainActivity?
+        if (mainActivity != null) {
+            myDB = mainActivity.getDB()
+        }
 
         applyAdapters()
         readNoteFromArgs()
-
         splitAdapterLists()
-
         addListeners()
     }
 
-    @SuppressLint("SetTextI18n")
     private fun horizontalLineUpdate() {
         if (checkedList.isNotEmpty()) {
             horizontal_line.visibility = View.VISIBLE
             drop_down_image.visibility = View.VISIBLE
-            checked_item.text = "" + checkedList.size + checked_item.text.toString()
+            checked_item.text = getString(R.string.checked_item, checkedList.size)
         } else {
             horizontal_line.visibility = View.GONE
             drop_down_image.visibility = View.GONE
@@ -98,14 +98,16 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
             note?.title = note_title.text.toString()
         }
 
-        view?.setOnKeyListener { _: View, i: Int, keyEvent: KeyEvent ->
-            if (keyEvent.action == KeyEvent.ACTION_UP && i == KeyEvent.KEYCODE_BACK) {
-                saveChanges(isNew)
-                true
-            } else {
-                false
-            }
-        }
+        activity?.onBackPressedDispatcher?.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    println("BACK CLICKED")
+                    saveChanges(isNew)
+                    remove()
+                    activity?.onBackPressed()
+                }
+            })
 
         back_btn.setOnClickListener {
             saveChanges(isNew)
@@ -115,11 +117,7 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
         pin_btn.setOnClickListener {
             if (note != null) {
                 note!!.isPinned = !note!!.isPinned
-                if (note?.isPinned!!) {
-                    pin_btn.setImageResource(R.drawable.ic_pushpin_selected)
-                } else {
-                    pin_btn.setImageResource(R.drawable.ic_pushpin)
-                }
+                checkNotePin()
             }
         }
     }
@@ -127,12 +125,22 @@ class NoteFragment : Fragment(), OnEditTextChanged, OnRemoveNoteClick, OnCheckbo
     private fun readNoteFromArgs() {
         isNew = arguments?.getBoolean("isNew")!!
         note = Note("", mutableListOf())
+
         if (!isNew) {
             note = arguments?.getParcelable("note")
             note_title.setText(note?.title)
         } else {
             note?.eachNote = mutableListOf()
             note?.eachNote?.add(EachNote(note_id = 0, note = "", isChecked = false))
+        }
+        checkNotePin()
+    }
+
+    private fun checkNotePin() {
+        if (note?.isPinned!!) {
+            pin_btn.setImageResource(R.drawable.ic_pushpin_selected)
+        } else {
+            pin_btn.setImageResource(R.drawable.ic_pushpin)
         }
     }
 
